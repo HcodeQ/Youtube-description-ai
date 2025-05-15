@@ -5,10 +5,10 @@ from langchain_together import ChatTogether
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, field_validator
 import re
-from typing import List, Dict
+from typing import List
 
 
-TOGETHER_API_KEY = "a273b5e896ad97ffca1ce98a227e8f8209a5c530a2dffc3b79e7f3979fe8341a"
+TOGETHER_API_KEY = "..."
 
 llm = ChatTogether(
     model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
