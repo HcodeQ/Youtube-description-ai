@@ -1,17 +1,18 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from pydantic import model_validator
+from pydantic import BaseModel , RootModel, model_validator
 from typing import List
 from description_generator import process_video
 
 #définition d'un modèle pour vérifier qu'une dictionnaire contient une seule clé
-class SingleKeyDict(BaseModel):
-    __root__ : dict #root est un champ créé permettant de stocker une "value" passée au modèle
-
+class SingleKeyDict(RootModel[dict]):
     @model_validator(mode="before")
-    def check_single_key(cls, value) :
+    @classmethod
+    def check_single_key(cls, value):
+        if not isinstance(value, dict):
+            raise TypeError("La valeur doit être un dictionnaire.")
         if len(value) != 1:
             raise ValueError("Le dictionnaire doit contenir une seule clé.")
+        return value
 
 #définition d'un modèle de donnéees
 class VideoData(BaseModel):
@@ -33,5 +34,5 @@ app = FastAPI()
 
 @app.post("/generate")
 async def generate_description(data: VideoData):
-    result = process_video(data)
+    result = process_video(data.model_dump())
     return result

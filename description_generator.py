@@ -4,17 +4,16 @@ from langchain_community.document_loaders.youtube import TranscriptFormat
 from langchain_together import ChatTogether
 from langchain.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field, field_validator
-import re
 from typing import List
+from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
+import os
 
-
-TOGETHER_API_KEY = "..."
 
 llm = ChatTogether(
     model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
     temperature=1,
-    max_tokens=2000,
-    api_key=TOGETHER_API_KEY
+    max_tokens=1300,
+    api_key=os.getenv("TOGETHER_API_KEY"),
 )
 
 #définition d'une structure de données
@@ -46,15 +45,18 @@ def process_video(data):
     data["timestamps_instruction"] = timestamps_instruction
 
     # Chargement de la transcription
-    loader = YoutubeLoader.from_youtube_url(
-        data['video_url'],
-        add_video_info=False,
-        transcript_format=TranscriptFormat.CHUNKS,
-        chunk_size_seconds=4,
-        language=["fr", "id"],
-        translation="fr",
-    )
-    docs = loader.load()
+    try:
+        loader = YoutubeLoader.from_youtube_url(
+            data['video_url'],
+            add_video_info=False,
+            transcript_format=TranscriptFormat.CHUNKS,
+            chunk_size_seconds=4,
+            language=["fr", "id"],
+            translation="fr",
+        )
+        docs = loader.load()
+    except (TranscriptsDisabled, NoTranscriptFound, Exception) as e:
+        return {"error": f"Impossible de récupérer la transcription : {str(e)}"}
 
     # Nettoyage de la sortie pour garder uniquement les timecodes et le texte
     transcript = "\n".join([f"{chunk.page_content} - {chunk.metadata['start_timestamp']}" for chunk in docs])
@@ -145,9 +147,9 @@ Ne retourne rien d'autre que ce JSON avec les champs suivants :
 
 ---
 
-🎙️ Tu peux t’inspirer du style de description utilisé par les meilleurs créateurs de contenu YouTube dans ta thématique. Rends chaque section fluide, humaine et cohérente.
+Tu peux t’inspirer du style de description utilisé par les meilleurs créateurs de contenu YouTube dans ta thématique. Rends chaque section fluide, humaine et cohérente.
 
-🎯 L’objectif est de produire une description complète, engageante et parfaitement optimisée à partir de la vidéo suivante : {video_url}
+ L’objectif est de produire une description complète, engageante et parfaitement optimisée à partir de la vidéo suivante : {video_url}
 
 N'oublie pas d'utiliser des **pronoms personnels** ("je", "tu", "nous") pour créer une relation directe avec le spectateur.
 
