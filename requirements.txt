@@ -3,3 +3,4 @@ langchain_core
 langchain-together
 langchain_community
 youtube-transcript-api
+fastapi

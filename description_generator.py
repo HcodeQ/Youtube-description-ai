@@ -17,7 +17,7 @@ llm = ChatTogether(
     api_key=TOGETHER_API_KEY
 )
 
-  #définition d'une structure de données
+#définition d'une structure de données
 class yt_description(BaseModel):
     title: str = Field(description="video description title")
     resume: str = Field(description="video description resume")
@@ -47,32 +47,18 @@ class yt_description(BaseModel):
         return field
 
 
-def process_video():
-    data_test = {
-        "video_type": "Tutoriel",
-        "video_url": "https://youtu.be/LGC9hI6QrJc",
-        "description_tone": "based on the transcript tone",
-        "optional_keywords": "SEO, IA, LangChain",
-        "transcript_format": "CHUNKS",
-        "transcript": "",
-        "languages": ["fr", "en"],
-        "translation": "fr",
-        "hashtags": "#SEO #LangChain",
-        "timestamps_mode": "automatique",
-        "manual_timestamps": "",
-        "useful_links": [{"Github": "https://github.com/"}, {"LangChain Docs": "https://python.langchain.com"}]
-    }
+def process_video(data):
 
-    if data_test["timestamps_mode"] == "manuel":
-        timestamps_instruction = f"Utiliser ces timestamps : {data_test['manual_timestamps']}"
+    if data["timestamps_mode"] == "manuel":
+        timestamps_instruction = f"Utiliser ces timestamps : {data['manual_timestamps']}"
     else:
         timestamps_instruction = "Génère automatiquement 4 à 7 timestamps clés avec des titres courts et pertinents."
 
-    data_test["timestamps_instruction"] = timestamps_instruction
+    data["timestamps_instruction"] = timestamps_instruction
 
     # Chargement de la transcription
     loader = YoutubeLoader.from_youtube_url(
-        data_test['video_url'],
+        data['video_url'],
         add_video_info=False,
         transcript_format=TranscriptFormat.CHUNKS,
         chunk_size_seconds=4,
@@ -83,7 +69,7 @@ def process_video():
 
     # Nettoyage de la sortie pour garder uniquement les timecodes et le texte
     transcript = "\n".join([f"{chunk.page_content} - {chunk.metadata['start_timestamp']}" for chunk in docs])
-    data_test['transcript'] = transcript
+    data['transcript'] = transcript
 
     #création d'un parseur de données
     parser = PydanticOutputParser(pydantic_object=yt_description)
@@ -189,9 +175,6 @@ N'oublie pas d'utiliser des **pronoms personnels** ("je", "tu", "nous") pour cr�
 
     #création d'une chain
     chain = prompt | llm | parser
-    result = chain.invoke(data_test)
+    result = chain.invoke(data)
     return result
-
-appel = process_video()
-print(appel)
 
