@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from pydantic import model_validator
+from typing import List
+from description_generator import process_video
 
 #définition d'un modèle pour vérifier qu'une dictionnaire contient une seule clé
 class SingleKeyDict(BaseModel):
@@ -12,28 +14,24 @@ class SingleKeyDict(BaseModel):
             raise ValueError("Le dictionnaire doit contenir une seule clé.")
 
 #définition d'un modèle de donnéees
-class yt_data(BaseModel):
-    video_type: str = Field(description="Type de vidéo")
-    video_url: str = Field(description="URL de la vidéo")
-    description_tone: str = Field(description="Ton de la description")
-    optional_keywords: str = Field(description="Mots clés optionnels")
-    transcript_format: str = Field(description="Format de la transcription")
-    transcript: str = Field(description="Transcription de la vidéo")
-    languages: List[str] = Field(description="Langues disponibles")
-    translation: str = Field(description="Langue de traduction")
-    hashtags: str = Field(description="Hashtags à inclure")
-    timestamps_mode: str = Field(description="Mode des timestamps")
-    manual_timestamps: str = Field(description="Timestamps manuels")
-    useful_links: List[SingleKeyDict] = Field(description="Liens utiles")
+class VideoData(BaseModel):
+    video_type: str
+    video_url: str
+    description_tone: str
+    optional_keywords: str
+    transcript_format: str
+    transcript: str
+    languages: List[str]
+    translation: str
+    hashtags: str
+    timestamps_mode: str
+    manual_timestamps: str
+    useful_links: List[SingleKeyDict]
 
-    
-
-#validation personnalisée 
-@model_validator(mode="before")
 
 app = FastAPI()
 
-@app.post("/generate_description")
-async def root():
-     
-
+@app.post("/generate")
+async def generate_description(data: VideoData):
+    result = process_video(data)
+    return result

@@ -35,17 +35,6 @@ class yt_description(BaseModel):
             raise ValueError("Les mots clés doivent être séparés par des virgules et être une string.")
         return field
 
-    @field_validator("links")
-    @classmethod
-    def links_in_correct_format(cls, field):
-        link_pattern = re.compile(r"^[^:]+ : https?://[^\s]+$")
-        for link_dict in field:
-            if not isinstance(link_dict, dict):
-                raise ValueError("les liens doivent être dans un format de dictionnaire.")
-            if len(link_dict) != 1:
-                raise ValueError("les liens ne continennent qu'un seul élément.")
-        return field
-
 
 def process_video(data):
 
