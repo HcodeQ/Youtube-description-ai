@@ -40,7 +40,32 @@ def process_video(data):
     if data["timestamps_mode"] == "manuel":
         timestamps_instruction = f"Utiliser ces timestamps : {data['manual_timestamps']}"
     else:
-        timestamps_instruction = "Génère automatiquement 4 à 7 timestamps clés avec des titres courts et pertinents."
+        timestamps_instruction = """
+🔥 TIMESTAMPS TRANSITIONS ULTRA-PRÉCIS - RÈGLES STRICTES :
+
+1. DÉTECTION OBLIGATOIRE DES :
+   - Marqueurs explicites : 
+     "Passons à...", "Maintenant voyons...", "2ème point...", 
+     "Problème :", "Solution :", "Mais attention...", 
+     "La question est...", "En réalité..."
+   - Changements de tonalité (ex: passage théorique → démo)
+   - Alternances claires (thèse → antithèse, problème → solution)
+
+2. FORMAT FERMÉ :
+[MM:SS] - [Verbe d'action] [Sujet] 
+Exemples VALIDES :
+00:00 - Intro
+02:15 - Deuxième point, étape , sujet
+04:30 - Troisième point, étape , sujet
+07:00 - Quatrième point, étape , sujet
+09:45 - Cinquième point, étape , sujet
+
+3. INTERDITS :
+- Pas de timestamps sans transition audible
+- Pas de descriptions > 4 mots
+- Pas de résumés de contenu
+
+"""
 
     data["timestamps_instruction"] = timestamps_instruction
 
